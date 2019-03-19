@@ -152,6 +152,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="AppDbContext.cs" />
     <Compile Include="GeocacheDialog.xaml.cs">
       <DependentUpon>GeocacheDialog.xaml</DependentUpon>
     </Compile>

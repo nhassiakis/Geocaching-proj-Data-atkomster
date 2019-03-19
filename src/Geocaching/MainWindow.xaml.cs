@@ -24,7 +24,7 @@ namespace Geocaching
     {
         // Contains the ID string needed to use the Bing map.
         // Instructions here: https://docs.microsoft.com/en-us/bingmaps/getting-started/bing-maps-dev-center-help/getting-a-bing-maps-key
-        private const string applicationId = ArrPoarKmhwzYYvnD3Ws7Cl1Cj14XE9y95ylBEc6i2MW26Ty77PgjgIpV85CoU5D;
+        private const string applicationId = "ArrPoarKmhwzYYvnD3Ws7Cl1Cj14XE9y95ylBEc6i2MW26Ty77PgjgIpV85CoU5D";
 
         private MapLayer layer;
 
@@ -34,13 +34,7 @@ namespace Geocaching
 
         private Location gothenburg = new Location(57.719021, 11.991202);
 
-        public class AppDbContext : DbContext
-        {
-            protected override void OnConfiguring(DbContextOptionsBuilder options)
-            {
-                options.UseSqlServer(@"Data Source=(local)\SQLEXPRESS;Initial Catalog=Geocaching;Integrated Security=True");
-            }
-        }
+       
 
         public MainWindow()
         {
