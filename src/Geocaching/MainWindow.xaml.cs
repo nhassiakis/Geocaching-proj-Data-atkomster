@@ -24,7 +24,7 @@ namespace Geocaching
     {
         // Contains the ID string needed to use the Bing map.
         // Instructions here: https://docs.microsoft.com/en-us/bingmaps/getting-started/bing-maps-dev-center-help/getting-a-bing-maps-key
-        private const string applicationId = null;
+        private const string applicationId = ArrPoarKmhwzYYvnD3Ws7Cl1Cj14XE9y95ylBEc6i2MW26Ty77PgjgIpV85CoU5D;
 
         private MapLayer layer;
 
