@@ -34,7 +34,7 @@ namespace Geocaching
 
         private Location gothenburg = new Location(57.719021, 11.991202);
 
-        class AppDbContext : DbContext
+        public class AppDbContext : DbContext
         {
             protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
