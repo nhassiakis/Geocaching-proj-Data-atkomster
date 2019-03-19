@@ -17,6 +17,7 @@ namespace Geocaching.Models
         public string City { get; set; }
         public string StreetName { get; set; }
         public Int16 StreetNumber { get; set; }
+        public IList<FoundGeocache> FoundGeocaches { get; set; }
 
     }
 }

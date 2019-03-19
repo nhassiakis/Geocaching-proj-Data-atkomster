@@ -14,5 +14,7 @@ namespace Geocaching.Models
         public float Longitude { get; set; }
         public string Contents { get; set; }
         public string Message { get; set; }
+        public IList<FoundGeocache> FoundGeocaches { get; set; }
+
     }
 }
