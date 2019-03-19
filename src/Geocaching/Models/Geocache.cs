@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Geocaching.Models
 {
-    class Geocache
+    public class Geocache
     {
     }
 }

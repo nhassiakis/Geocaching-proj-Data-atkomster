@@ -165,6 +165,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\FoundGeocache.cs" />
+    <Compile Include="Models\Geocache.cs" />
+    <Compile Include="Models\Person.cs" />
     <Compile Include="PersonDialog.xaml.cs">
       <DependentUpon>PersonDialog.xaml</DependentUpon>
     </Compile>
