@@ -8,6 +8,7 @@ namespace Geocaching.Models
 {
     public class FoundGeocache
     {
+
         public int PersonID { get; set; }
         public Person Person { get; set; }
 

@@ -18,5 +18,19 @@ namespace Geocaching
         {
             options.UseSqlServer(@"Data Source=(local)\SQLEXPRESS;Initial Catalog=Geocaching;Integrated Security=True");
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<FoundGeocache>()
+                .HasKey(fg => new { fg.PersonID, fg.GeocacheID });
+            modelBuilder.Entity<FoundGeocache>()
+                .HasOne(fg => fg.Geocache)
+                .WithMany(g => g.FoundGeocaches)
+                .HasForeignKey(fg => fg.GeocacheID);
+            modelBuilder.Entity<FoundGeocache>()
+                .HasOne(fg => fg.Person)
+                .WithMany(p => p.FoundGeocaches)
+                .HasForeignKey(fg => fg.PersonID);
+        }
     }
 }
