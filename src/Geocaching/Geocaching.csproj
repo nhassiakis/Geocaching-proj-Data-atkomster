@@ -166,6 +166,11 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Migrations\20190319095813_First.cs" />
+    <Compile Include="Migrations\20190319095813_First.designer.cs">
+      <DependentUpon>20190319095813_First.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\AppDbContextModelSnapshot.cs" />
     <Compile Include="Models\FoundGeocache.cs" />
     <Compile Include="Models\Geocache.cs" />
     <Compile Include="Models\Person.cs" />
