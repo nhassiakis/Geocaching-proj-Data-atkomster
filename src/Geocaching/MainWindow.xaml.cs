@@ -20,6 +20,8 @@ namespace Geocaching
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    /// 
+
     public partial class MainWindow : Window
     {
         // Contains the ID string needed to use the Bing map.
