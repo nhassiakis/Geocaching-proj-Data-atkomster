@@ -2,8 +2,10 @@
 using Microsoft.Maps.MapControl.WPF;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,6 +26,9 @@ namespace Geocaching
 
     public partial class MainWindow : Window
     {
+        private AppDbContext db = new AppDbContext();
+
+
         // Contains the ID string needed to use the Bing map.
         // Instructions here: https://docs.microsoft.com/en-us/bingmaps/getting-started/bing-maps-dev-center-help/getting-a-bing-maps-key
         private const string applicationId = "ArrPoarKmhwzYYvnD3Ws7Cl1Cj14XE9y95ylBEc6i2MW26Ty77PgjgIpV85CoU5D";
@@ -182,6 +187,45 @@ namespace Geocaching
 
             string path = dialog.FileName;
             // Read the selected file here.
+
+
+
+            string[] lines = File.ReadAllLines(path).ToArray();
+            foreach (string line in lines)
+            {
+                
+                try
+                {
+                    //string pattern = @"([a-zA-Z])";
+                  
+                   
+                        string[] values = line.Split('|').Select(v => v.Trim()).ToArray();
+                        //int id = int.Parse(values[0]);
+                        string firstName = values[0];
+                        string lastName = values[1];
+                        string country = values[2];
+                        string city = values[3];
+                        string adress = values[4];
+                        Int16 streetNumber = Int16.Parse(values[5]);
+                        long latitude = long.Parse(values[6]);
+                        long longitude = long.Parse(values[7]);
+
+                    
+
+
+                    //artists[id] = new Artist
+                    //{
+                    //    Name = name,
+                    //    Country = country,
+                    //    YearStarted = yearStarted
+                    //};
+                }
+                catch
+                {
+                    Console.WriteLine("Could not read file." + line);
+                }
+            }
+
         }
 
         private void OnSaveToFileClick(object sender, RoutedEventArgs args)
