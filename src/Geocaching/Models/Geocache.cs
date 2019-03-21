@@ -12,8 +12,8 @@ namespace Geocaching.Models
         [Key]
         public int ID { get; set; }
         public Person Person { get; set; }
-        public float Latitude { get; set; }
-        public float Longitude { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
         [MaxLength(255)]
         public string Contents { get; set; }
         [MaxLength(255)]
