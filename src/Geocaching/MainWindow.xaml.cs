@@ -224,7 +224,6 @@ namespace Geocaching
 
                             }
 
-
                         }
                         else
                         {
@@ -250,7 +249,6 @@ namespace Geocaching
                                 Longitude = longitude
                             };
                         }
-
 
 
                         counter++;
