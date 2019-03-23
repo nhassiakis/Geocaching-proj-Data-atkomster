@@ -18,7 +18,7 @@ namespace Geocaching.Models
         public string Contents { get; set; }
         [MaxLength(255)]
         public string Message { get; set; }
-        public IList<FoundGeocache> FoundGeocaches { get; set; }
+        public List<FoundGeocache> FoundGeocaches { get; set; }
 
     }
 }

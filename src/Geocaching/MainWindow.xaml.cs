@@ -191,6 +191,10 @@ namespace Geocaching
 
             int counter = 0;
 
+             var person = new Dictionary<int, Person>();
+             var geocache = new Dictionary<int, Geocache>();
+             var foundGeocache = new Dictionary<int, FoundGeocache>();
+
             string[] lines = File.ReadAllLines(path).ToArray();
             foreach (string line in lines)
             {
@@ -199,31 +203,41 @@ namespace Geocaching
                 {
                     string checkNumbers = "0123456789";
                     bool CheckInt = false;
-                    if (checkNumbers.Contains(line.First()))
+                    if (line == string.Empty)
+                    {
+
+                    }
+                    else if (checkNumbers.Contains(line.First()))
                     {
                         CheckInt = true;
                     }
-
-                    var person = new Dictionary<int, Person>();
-                    var geocache = new Dictionary<int, Geocache>();
-                    var foundGeocache = new Dictionary<int, FoundGeocache>();
-                    if (CheckInt == false)
+                    else if (CheckInt == false)
                     {
+                        
                         if(line.StartsWith("Found:"))
                         {
                             char[] trimString = { 'F', 'o', 'u', 'n', 'd', ':', ' '};
                             string[] values = line.Split(',').Select(v => v.Trim(trimString)).ToArray();
-                            
+                           
                             foreach (var item in values)
                             {
-                                foundGeocache[counter] = new FoundGeocache
+                                if (item == "")
                                 {
-                                    PersonID = counter,
-                                    GeocacheID = int.Parse(item)
-                                };
+
+                                }
+                                else
+                                {
+                                    foundGeocache[counter] = new FoundGeocache
+                                    {
+                                        PersonID = counter,
+                                        GeocacheID = int.Parse(item)
+                                    };
+
+                                }
 
                             }
 
+                        counter++;
                         }
                         else
                         {
@@ -251,7 +265,6 @@ namespace Geocaching
                         }
 
 
-                        counter++;
                     }
 
                     if (CheckInt == true)

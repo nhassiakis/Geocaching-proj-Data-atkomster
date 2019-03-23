@@ -25,7 +25,7 @@ namespace Geocaching.Models
         public string StreetName { get; set; }
         [MaxLength(50)]
         public Int16 StreetNumber { get; set; }
-        public IList<FoundGeocache> FoundGeocaches { get; set; }
+        public IList<FoundGeocache> FoundGeocaches { get; set; } = new List<FoundGeocache>();
 
         public static implicit operator Dictionary<object, object>(Person v)
         {
