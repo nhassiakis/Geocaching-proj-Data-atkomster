@@ -27,7 +27,7 @@ namespace Geocaching
 
     public partial class MainWindow : Window
     {
-
+        private AppDbContext db = new AppDbContext();
 
 
         // Contains the ID string needed to use the Bing map.
@@ -216,108 +216,8 @@ namespace Geocaching
             string path = dialog.FileName;
             // Read the selected file here.
 
-            int counter = 0;
-
-            var person = new Dictionary<int, Person>();
-            var geocache = new Dictionary<int, Geocache>();
-            var foundGeocache = new Dictionary<int, FoundGeocache>();
-
-            string[] lines = File.ReadAllLines(path).ToArray();
-            foreach (string line in lines)
-            {
-
-                try
-                {
-                    string checkNumbers = "0123456789";
-                    bool CheckInt = false;
-                    if (line == string.Empty)
-                    {
-
-                    }
-                    else if (checkNumbers.Contains(line.First()))
-                    {
-                        CheckInt = true;
-                    }
-                    else if (CheckInt == false)
-                    {
-
-                        if (line.StartsWith("Found:"))
-                        {
-                            char[] trimString = { 'F', 'o', 'u', 'n', 'd', ':', ' ' };
-                            string[] values = line.Split(',').Select(v => v.Trim(trimString)).ToArray();
-
-                            foreach (var item in values)
-                            {
-                                if (item == "")
-                                {
-
-                                }
-                                else
-                                {
-                                    foundGeocache[counter] = new FoundGeocache
-                                    {
-                                        PersonID = counter,
-                                        GeocacheID = int.Parse(item)
-                                    };
-
-                                }
-
-                            }
-
-                            counter++;
-                        }
-                        else
-                        {
-                            string[] values = line.Split('|').Select(v => v.Trim()).ToArray();
-                            string firstName = values[0];
-                            string lastName = values[1];
-                            string country = values[2];
-                            string city = values[3];
-                            string streetName = values[4];
-                            Int16 streetNumber = Int16.Parse(values[5]);
-                            double latitude = double.Parse(values[6]);
-                            double longitude = double.Parse(values[7]);
-
-                            person[counter] = new Person
-                            {
-                                FirstName = firstName,
-                                LastName = lastName,
-                                Country = country,
-                                City = city,
-                                StreetName = streetName,
-                                StreetNumber = streetNumber,
-                                Latitude = latitude,
-                                Longitude = longitude
-                            };
-                        }
-
-                    }
-
-                    if (CheckInt == true)
-                    {
-                        string[] values = line.Split('|').Select(v => v.Trim()).ToArray();
-                        int id = int.Parse(values[0]);
-                        double latitude = double.Parse(values[1]);
-                        double longitude = double.Parse(values[2]);
-                        string contents = values[3];
-                        string message = values[4];
-
-                        geocache[id] = new Geocache
-                        {
-                            ID = id,
-                            Latitude = latitude,
-                            Longitude = longitude,
-                            Contents = contents,
-                            Message = message
-                        };
-                    }
-                }
-                catch
-                {
-                    Console.WriteLine("Could not read file." + line);
-                }
-            }
-
+            //db.ReadFromFile(path);
+            db.PopulateDatabase(db, path);
         }
 
         private void OnSaveToFileClick(object sender, RoutedEventArgs args)
