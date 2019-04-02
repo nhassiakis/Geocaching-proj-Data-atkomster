@@ -42,7 +42,7 @@ namespace Geocaching
 
         private Location gothenburg = new Location(57.719021, 11.991202);
 
-       
+
 
         public MainWindow()
         {
@@ -120,8 +120,19 @@ namespace Geocaching
                 return;
             }
 
+            double latitude = latestClickLocation.Latitude;
+            double longitude = latestClickLocation.Longitude;
             string contents = dialog.GeocacheContents;
             string message = dialog.GeocacheMessage;
+
+            Geocache geocache = new Geocache
+            {
+                Latitude = latitude,
+                Longitude = longitude,
+                Contents = contents,
+                Message = message
+            };
+
             // Add geocache to map and database here.
             var pin = AddPin(latestClickLocation, "Person", Colors.Gray);
 
@@ -145,11 +156,27 @@ namespace Geocaching
             {
                 return;
             }
-
+            string firstName = dialog.PersonFirstName;
+            string lastName = dialog.PersonLastName;
+            double latitude = latestClickLocation.Latitude;
+            double longitude = latestClickLocation.Longitude;
             string city = dialog.AddressCity;
             string country = dialog.AddressCountry;
             string streetName = dialog.AddressStreetName;
             int streetNumber = dialog.AddressStreetNumber;
+
+            Person person = new Person
+            {
+                FirstName = firstName,
+                LastName = lastName,
+                Latitude = latitude,
+                Longitude = longitude,
+                City = city,
+                Country = country,
+                StreetName = streetName,
+                StreetNumber = (short)streetNumber
+            };
+
             // Add person to map and database here.
             var pin = AddPin(latestClickLocation, "Person", Colors.Blue);
 
@@ -191,14 +218,14 @@ namespace Geocaching
 
             int counter = 0;
 
-             var person = new Dictionary<int, Person>();
-             var geocache = new Dictionary<int, Geocache>();
-             var foundGeocache = new Dictionary<int, FoundGeocache>();
+            var person = new Dictionary<int, Person>();
+            var geocache = new Dictionary<int, Geocache>();
+            var foundGeocache = new Dictionary<int, FoundGeocache>();
 
             string[] lines = File.ReadAllLines(path).ToArray();
             foreach (string line in lines)
             {
-                
+
                 try
                 {
                     string checkNumbers = "0123456789";
@@ -213,12 +240,12 @@ namespace Geocaching
                     }
                     else if (CheckInt == false)
                     {
-                        
-                        if(line.StartsWith("Found:"))
+
+                        if (line.StartsWith("Found:"))
                         {
-                            char[] trimString = { 'F', 'o', 'u', 'n', 'd', ':', ' '};
+                            char[] trimString = { 'F', 'o', 'u', 'n', 'd', ':', ' ' };
                             string[] values = line.Split(',').Select(v => v.Trim(trimString)).ToArray();
-                           
+
                             foreach (var item in values)
                             {
                                 if (item == "")
@@ -237,7 +264,7 @@ namespace Geocaching
 
                             }
 
-                        counter++;
+                            counter++;
                         }
                         else
                         {
@@ -263,7 +290,6 @@ namespace Geocaching
                                 Longitude = longitude
                             };
                         }
-
 
                     }
 
@@ -307,7 +333,15 @@ namespace Geocaching
             }
 
             string path = dialog.FileName;
-            // Write to the selected file here.
+
+            using (TextWriter tw = new StreamWriter(path))
+            {
+                //foreach (var item in Person) Hämta från databas först
+            }
+
+
+
+
         }
     }
 }

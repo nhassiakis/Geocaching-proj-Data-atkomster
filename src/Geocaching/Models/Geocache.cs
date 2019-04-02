@@ -20,5 +20,7 @@ namespace Geocaching.Models
         public string Message { get; set; }
         public List<FoundGeocache> FoundGeocaches { get; set; }
 
+
+
     }
 }
