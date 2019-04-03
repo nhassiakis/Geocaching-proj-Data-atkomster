@@ -202,6 +202,7 @@ namespace Geocaching
             return pin;
         }
 
+
         private void OnLoadFromFileClick(object sender, RoutedEventArgs args)
         {
             var dialog = new Microsoft.Win32.OpenFileDialog();
@@ -217,6 +218,7 @@ namespace Geocaching
             // Read the selected file here.
 
             //db.ReadFromFile(path);
+            db.ClearDatabase(db);
             db.PopulateDatabase(db, path);
         }
 
@@ -238,8 +240,6 @@ namespace Geocaching
             {
                 //foreach (var item in Person) Hämta från databas först
             }
-
-
 
 
         }

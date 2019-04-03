@@ -36,14 +36,14 @@ namespace Geocaching
                 .HasForeignKey(fg => fg.PersonID);
         }
 
-        //private static void ClearDatabase(AppDbContext database)
-        //{
-        //    database.
-        //    database.Song.RemoveRange(database.Song);
-        //    database.Album.RemoveRange(database.Album);
-        //    database.Artist.RemoveRange(database.Artist);
-        //    database.SaveChanges();
-        //}
+        public void ClearDatabase(AppDbContext db)
+        {
+            db.Person.RemoveRange(db.Person);
+            db.Geocache.RemoveRange(db.Geocache);
+            db.FoundGeocache.RemoveRange(db.FoundGeocache);
+
+            db.SaveChanges();
+        }
 
         public void ReadFromFile(string path)
         {
