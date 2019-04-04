@@ -141,10 +141,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Migrations\20190403125944_UpdateMOdels2.cs" />
-    <Compile Include="Migrations\20190403125944_UpdateMOdels2.designer.cs">
-      <DependentUpon>20190403125944_UpdateMOdels2.cs</DependentUpon>
+    <Compile Include="Migrations\20190404093106_UpdateModels.cs" />
+    <Compile Include="Migrations\20190404093106_UpdateModels.designer.cs">
+      <DependentUpon>20190404093106_UpdateModels.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20190404095535_updatemodels2.cs" />
+    <Compile Include="Migrations\20190404095535_updatemodels2.designer.cs">
+      <DependentUpon>20190404095535_updatemodels2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\20190404095941_modelupdate3.cs" />
+    <Compile Include="Migrations\20190404095941_modelupdate3.designer.cs">
+      <DependentUpon>20190404095941_modelupdate3.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\AppDbContextModelSnapshot.cs" />
     <Compile Include="WriteToText.cs" />
     <Page Include="GeocacheDialog.xaml">
       <SubType>Designer</SubType>
@@ -172,11 +181,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Migrations\20190319105059_AddedModels.cs" />
-    <Compile Include="Migrations\20190319105059_AddedModels.designer.cs">
-      <DependentUpon>20190319105059_AddedModels.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\AppDbContextModelSnapshot.cs" />
     <Compile Include="Models\FoundGeocache.cs" />
     <Compile Include="Models\Geocache.cs" />
     <Compile Include="Models\Person.cs" />

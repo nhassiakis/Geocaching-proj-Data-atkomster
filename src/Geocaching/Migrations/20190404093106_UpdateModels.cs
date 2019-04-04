@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Geocaching.Migrations
 {
-    public partial class AddedModels : Migration
+    public partial class UpdateModels : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,14 +13,14 @@ namespace Geocaching.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    FirstName = table.Column<string>(nullable: true),
-                    LastName = table.Column<string>(nullable: true),
-                    Latitude = table.Column<float>(nullable: false),
-                    Longitude = table.Column<float>(nullable: false),
-                    Country = table.Column<string>(nullable: true),
-                    City = table.Column<string>(nullable: true),
-                    StreetName = table.Column<string>(nullable: true),
-                    StreetNumber = table.Column<short>(nullable: false)
+                    FirstName = table.Column<string>(maxLength: 50, nullable: true),
+                    LastName = table.Column<string>(maxLength: 50, nullable: true),
+                    Latitude = table.Column<double>(nullable: false),
+                    Longitude = table.Column<double>(nullable: false),
+                    Country = table.Column<string>(maxLength: 50, nullable: true),
+                    City = table.Column<string>(maxLength: 50, nullable: true),
+                    StreetName = table.Column<string>(maxLength: 50, nullable: true),
+                    StreetNumber = table.Column<short>(maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -34,10 +34,10 @@ namespace Geocaching.Migrations
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     PersonID = table.Column<int>(nullable: true),
-                    Latitude = table.Column<float>(nullable: false),
-                    Longitude = table.Column<float>(nullable: false),
-                    Contents = table.Column<string>(nullable: true),
-                    Message = table.Column<string>(nullable: true)
+                    Latitude = table.Column<double>(nullable: false),
+                    Longitude = table.Column<double>(nullable: false),
+                    Contents = table.Column<string>(maxLength: 255, nullable: true),
+                    Message = table.Column<string>(maxLength: 255, nullable: true)
                 },
                 constraints: table =>
                 {

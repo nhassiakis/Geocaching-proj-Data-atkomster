@@ -34,13 +34,23 @@ namespace Geocaching
                 .HasOne(fg => fg.Person)
                 .WithMany(p => p.FoundGeocaches)
                 .HasForeignKey(fg => fg.PersonID);
+
+            modelBuilder.Entity<Geocache>(b =>
+            {
+                b.HasKey(e => e.ID);
+                b.Property(e => e.ID).ValueGeneratedOnAdd();
+            }); ;
         }
 
         public void ClearDatabase(AppDbContext db)
         {
-            db.Person.RemoveRange(db.Person);
             db.Geocache.RemoveRange(db.Geocache);
             db.FoundGeocache.RemoveRange(db.FoundGeocache);
+            foreach (var p in db.Person)
+            {
+
+            }
+            db.Person.RemoveRange(db.Person.ToArray());
 
             db.SaveChanges();
         }
@@ -135,7 +145,7 @@ namespace Geocaching
 
                         geocache[id] = new Geocache
                         {
-                            ID = id,
+                            //ID = id,
                             Latitude = latitude,
                             Longitude = longitude,
                             Contents = contents,
@@ -153,14 +163,6 @@ namespace Geocaching
 
         public void PopulateDatabase(AppDbContext db, string path)
         {
-            try
-            {
-                db.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.Geocache ON");
-                db.SaveChanges();
-            }
-            catch
-            { }
-
             var person = ReadPerson(path);
             var geocache = ReadGeocahe(path,db);
             var foundGeocache = ReadFoundGeoCache(path);
@@ -284,7 +286,6 @@ namespace Geocaching
 
                         geocache[id] = new Geocache
                         {
-                            ID = id,
                             Latitude = latitude,
                             Longitude = longitude,
                             Contents = contents,
