@@ -141,6 +141,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Migrations\20190403125944_UpdateMOdels2.cs" />
+    <Compile Include="Migrations\20190403125944_UpdateMOdels2.designer.cs">
+      <DependentUpon>20190403125944_UpdateMOdels2.cs</DependentUpon>
+    </Compile>
     <Compile Include="WriteToText.cs" />
     <Page Include="GeocacheDialog.xaml">
       <SubType>Designer</SubType>

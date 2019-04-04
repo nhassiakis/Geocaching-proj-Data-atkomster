@@ -153,14 +153,33 @@ namespace Geocaching
 
         public void PopulateDatabase(AppDbContext db, string path)
         {
+            try
+            {
+                db.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.Geocache ON");
+                db.SaveChanges();
+            }
+            catch
+            { }
+
             var person = ReadPerson(path);
-            var geocache = ReadGeocahe(path);
+            var geocache = ReadGeocahe(path,db);
             var foundGeocache = ReadFoundGeoCache(path);
             foreach (var p in person)
             {
                 db.Add(p.Value);
                 db.SaveChanges();
             }
+            foreach (var g in geocache)
+            {
+                db.Add(g.Value);
+                db.SaveChanges();
+            }
+            foreach (var fg in foundGeocache)
+            {
+                db.Add(fg.Value);
+                db.SaveChanges();
+            }
+
         }
 
 
@@ -226,7 +245,7 @@ namespace Geocaching
                 return foundGeocache;
 
         }
-        private static Dictionary<int, Geocache> ReadGeocahe(string path)
+        private static Dictionary<int, Geocache> ReadGeocahe(string path, AppDbContext db)
         {
             var geocache = new Dictionary<int, Geocache>();
 
@@ -261,6 +280,8 @@ namespace Geocaching
                         string contents = values[3];
                         string message = values[4];
 
+                        
+
                         geocache[id] = new Geocache
                         {
                             ID = id,
@@ -269,6 +290,8 @@ namespace Geocaching
                             Contents = contents,
                             Message = message
                         };
+
+                       
                     }
 
                 }
