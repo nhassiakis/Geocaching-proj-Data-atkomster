@@ -55,322 +55,116 @@ namespace Geocaching
             db.SaveChanges();
         }
 
-        public void ReadFromFile(string path)
+        public void ReadFromFile(string path, AppDbContext db)
         {
-            int counter = 0;
-
-            var person = new Dictionary<int, Person>();
+            var person = new List<Person>();
+            var found = new Dictionary<Person, int[]>();
             var geocache = new Dictionary<int, Geocache>();
-            var foundGeocache = new Dictionary<int, FoundGeocache>();
 
-            string[] lines = File.ReadAllLines(path).ToArray();
+            string[] lines = File.ReadAllLines(path);
             foreach (string line in lines)
             {
+                string[] split = line.Split('|').Select(v => v.Trim()).ToArray();
 
-                try
+                if (split[0] != "")
                 {
-                    string checkNumbers = "0123456789";
-                    bool CheckInt = false;
-                    if (line == string.Empty)
-                    {
 
-                    }
-                    else if (checkNumbers.Contains(line.First()))
+                    if (split.Length == 8)
                     {
-                        CheckInt = true;
-                    }
-                    else if (CheckInt == false)
-                    {
+                        string firstName = split[0];
+                        string lastName = split[1];
+                        string country = split[2];
+                        string city = split[3];
+                        string streetName = split[4];
+                        Int16 streetNumber = Int16.Parse(split[5]);
+                        double latitude = double.Parse(split[6]);
+                        double longitude = double.Parse(split[7]);
 
-                        if (line.StartsWith("Found:"))
+                        var newPerson = new Person
                         {
-                            char[] trimString = { 'F', 'o', 'u', 'n', 'd', ':', ' ' };
-                            string[] values = line.Split(',').Select(v => v.Trim(trimString)).ToArray();
+                            FirstName = firstName,
+                            LastName = lastName,
+                            Country = country,
+                            City = city,
+                            StreetName = streetName,
+                            StreetNumber = streetNumber,
+                            Latitude = latitude,
+                            Longitude = longitude
+                        };
 
-                            foreach (var item in values)
-                            {
-                                if (item == "")
-                                {
-
-                                }
-                                else
-                                {
-                                    foundGeocache[counter] = new FoundGeocache
-                                    {
-                                        PersonID = counter,
-                                        GeocacheID = int.Parse(item)
-                                    };
-
-                                }
-
-                            }
-
-                            counter++;
-                        }
-                        else
-                        {
-                            string[] values = line.Split('|').Select(v => v.Trim()).ToArray();
-                            string firstName = values[0];
-                            string lastName = values[1];
-                            string country = values[2];
-                            string city = values[3];
-                            string streetName = values[4];
-                            Int16 streetNumber = Int16.Parse(values[5]);
-                            double latitude = double.Parse(values[6]);
-                            double longitude = double.Parse(values[7]);
-
-                            person[counter] = new Person
-                            {
-                                FirstName = firstName,
-                                LastName = lastName,
-                                Country = country,
-                                City = city,
-                                StreetName = streetName,
-                                StreetNumber = streetNumber,
-                                Latitude = latitude,
-                                Longitude = longitude
-                            };
-                        }
-
+                        person.Add(newPerson);
                     }
 
-                    if (CheckInt == true)
+                    else if (split.Length == 5)
                     {
-                        string[] values = line.Split('|').Select(v => v.Trim()).ToArray();
-                        int id = int.Parse(values[0]);
-                        double latitude = double.Parse(values[1]);
-                        double longitude = double.Parse(values[2]);
-                        string contents = values[3];
-                        string message = values[4];
+                        int id = int.Parse(split[0]);
+                        double latitude = double.Parse(split[1]);
+                        double longitude = double.Parse(split[2]);
+                        string contents = split[3];
+                        string message = split[4];
 
-                        geocache[id] = new Geocache
+                        var newGeo = new Geocache
                         {
-                            //ID = id,
                             Latitude = latitude,
                             Longitude = longitude,
                             Contents = contents,
                             Message = message
                         };
+
+                        geocache.Add(id, newGeo);
+
+                    }
+                    else
+                    {
+                        string foundString = split[0].Substring(6);
+                        char[] trimString = { 'F', 'o', 'u', 'n', 'd', ':', ' ' };
+                        int[] intSplit = foundString.Split(',').Select(s => int.Parse(s.Trim())).ToArray();
+
+                        if (foundString != "")
+                        {
+                            found.Add(person[0], intSplit);
+
+                        }
+                        else
+                        {
+                            person.Add(person[0]);
+                        }
+
                     }
                 }
-                catch
+
+                foreach (var item in found)
                 {
-                    Console.WriteLine("Could not read file." + line);
+                    foreach (var foundGeo in item.Value)
+                    {
+                        var newfg = new FoundGeocache()
+                        {
+                            Person = item.Key,
+                            Geocache = geocache.Where(s => s.Key == foundGeo).Select(fg => fg.Value).FirstOrDefault()
+                        };
+                        db.Add(newfg);
+                    }
                 }
+
             }
-
-        }
-
-        public void PopulateDatabase(AppDbContext db, string path)
-        {
-            var person = ReadPerson(path);
-            var geocache = ReadGeocahe(path,db);
-            var foundGeocache = ReadFoundGeoCache(path);
             foreach (var p in person)
             {
-                db.Add(p.Value);
+                db.Add(p);
                 db.SaveChanges();
             }
             foreach (var g in geocache)
             {
-                db.Add(g.Value);
+                db.Add(g);
                 db.SaveChanges();
             }
-            foreach (var fg in foundGeocache)
+            foreach (var fg in found)
             {
-                db.Add(fg.Value);
+                db.Add(fg);
                 db.SaveChanges();
             }
-
+                person.Clear();
         }
-
-
-        private static Dictionary<int, FoundGeocache> ReadFoundGeoCache(string path)
-        {
-            var foundGeocache = new Dictionary<int, FoundGeocache>();
-            int counter = 0;
-
-
-            string[] lines = File.ReadAllLines(path).ToArray();
-            foreach (string line in lines)
-            {
-
-                try
-                {
-                    string checkNumbers = "0123456789";
-                    bool CheckInt = false;
-                    if (line == string.Empty)
-                    {
-
-                    }
-                    else if (checkNumbers.Contains(line.First()))
-                    {
-                        CheckInt = true;
-                    }
-                    else if (CheckInt == false)
-                    {
-
-                        if (line.StartsWith("Found:"))
-                        {
-                            char[] trimString = { 'F', 'o', 'u', 'n', 'd', ':', ' ' };
-                            string[] values = line.Split(',').Select(v => v.Trim(trimString)).ToArray();
-
-                            foreach (var item in values)
-                            {
-                                if (item == "")
-                                {
-
-                                }
-                                else
-                                {
-                                    foundGeocache[counter] = new FoundGeocache
-                                    {
-                                        PersonID = counter,
-                                        GeocacheID = int.Parse(item)
-                                    };
-
-                                }
-
-                            }
-
-                            counter++;
-                        }
-                    }
-
-                }
-
-                catch
-                {
-                    Console.WriteLine("Could not read file." + line);
-                }
-            }
-                return foundGeocache;
-
-        }
-        private static Dictionary<int, Geocache> ReadGeocahe(string path, AppDbContext db)
-        {
-            var geocache = new Dictionary<int, Geocache>();
-
-
-            string[] lines = File.ReadAllLines(path).ToArray();
-            foreach (string line in lines)
-            {
-
-                try
-                {
-                    string checkNumbers = "0123456789";
-                    bool CheckInt = false;
-                    if (line == string.Empty)
-                    {
-
-                    }
-                    else if (checkNumbers.Contains(line.First()))
-                    {
-                        CheckInt = true;
-                    }
-                    else if (CheckInt == false)
-                    {
-                    }
-
-
-                    if (CheckInt == true)
-                    {
-                        string[] values = line.Split('|').Select(v => v.Trim()).ToArray();
-                        int id = int.Parse(values[0]);
-                        double latitude = double.Parse(values[1]);
-                        double longitude = double.Parse(values[2]);
-                        string contents = values[3];
-                        string message = values[4];
-
-                        
-
-                        geocache[id] = new Geocache
-                        {
-                            Latitude = latitude,
-                            Longitude = longitude,
-                            Contents = contents,
-                            Message = message
-                        };
-
-                       
-                    }
-
-                }
-                catch
-                {
-                    Console.WriteLine("Could not read file." + line);
-                }
-            }
-                return geocache;
-        }
-
-        private static Dictionary<int, Person> ReadPerson(string path)
-        {
-            int counter = 0;
-
-            var person = new Dictionary<int, Person>();
-
-            string[] lines = File.ReadAllLines(path).ToArray();
-            foreach (string line in lines)
-            {
-
-                try
-                {
-                    string checkNumbers = "0123456789";
-                    bool CheckInt = false;
-                    if (line == string.Empty)
-                    {
-
-                    }
-                    else if (checkNumbers.Contains(line.First()))
-                    {
-                        CheckInt = true;
-                    }
-                    else if (CheckInt == false)
-                    {
-                        if (line.StartsWith("Found:"))
-                        {
-
-                        }
-                        else
-                        {
-                            string[] values = line.Split('|').Select(v => v.Trim()).ToArray();
-                            string firstName = values[0];
-                            string lastName = values[1];
-                            string country = values[2];
-                            string city = values[3];
-                            string streetName = values[4];
-                            Int16 streetNumber = Int16.Parse(values[5]);
-                            double latitude = double.Parse(values[6]);
-                            double longitude = double.Parse(values[7]);
-
-                            person[counter] = new Person
-                            {
-                                FirstName = firstName,
-                                LastName = lastName,
-                                Country = country,
-                                City = city,
-                                StreetName = streetName,
-                                StreetNumber = streetNumber,
-                                Latitude = latitude,
-                                Longitude = longitude
-                            };
-
-                            counter++;
-                        }
-                    }
-                }
-
-
-                catch
-                {
-                    Console.WriteLine("Could not read file." + line);
-                }
-
-
-            }
-                return person;
-        }
-
     }
+
 }
+

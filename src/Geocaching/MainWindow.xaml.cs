@@ -217,9 +217,8 @@ namespace Geocaching
             string path = dialog.FileName;
             // Read the selected file here.
 
-            //db.ReadFromFile(path);
             db.ClearDatabase(db);
-            db.PopulateDatabase(db, path);
+            db.ReadFromFile(path, db);
         }
 
         private void OnSaveToFileClick(object sender, RoutedEventArgs args)
