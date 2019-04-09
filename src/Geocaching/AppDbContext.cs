@@ -61,6 +61,8 @@ namespace Geocaching
             var found = new Dictionary<Person, int[]>();
             var geocache = new Dictionary<int, Geocache>();
 
+            found.Clear();
+
             string[] lines = File.ReadAllLines(path);
             foreach (string line in lines)
             {
@@ -92,7 +94,19 @@ namespace Geocaching
                             Longitude = longitude
                         };
 
-                        person.Add(newPerson);
+
+
+
+                        if (person.Count == 0)
+                        {
+                            person.Add(newPerson);
+
+                        }
+                        else
+                        {
+                            person.Clear();
+                            person.Add(newPerson);
+                        }
                     }
 
                     else if (split.Length == 5)
@@ -108,7 +122,9 @@ namespace Geocaching
                             Latitude = latitude,
                             Longitude = longitude,
                             Contents = contents,
-                            Message = message
+                            Message = message,
+                            Person = person[0]
+
                         };
 
                         geocache.Add(id, newGeo);
@@ -117,54 +133,48 @@ namespace Geocaching
                     else
                     {
                         string foundString = split[0].Substring(6);
-                        char[] trimString = { 'F', 'o', 'u', 'n', 'd', ':', ' ' };
+
                         int[] intSplit = foundString.Split(',').Select(s => int.Parse(s.Trim())).ToArray();
 
                         if (foundString != "")
                         {
                             found.Add(person[0], intSplit);
 
+
                         }
                         else
                         {
-                            person.Add(person[0]);
+                            db.Add(person[0]);
+
+
                         }
 
                     }
                 }
 
-                foreach (var item in found)
-                {
-                    foreach (var foundGeo in item.Value)
-                    {
-                        var newfg = new FoundGeocache()
-                        {
-                            Person = item.Key,
-                            Geocache = geocache.Where(s => s.Key == foundGeo).Select(fg => fg.Value).FirstOrDefault()
-                        };
-                        db.Add(newfg);
-                    }
-                }
+
 
             }
-            foreach (var p in person)
+
+            foreach (var item in found)
             {
-                db.Add(p);
-                db.SaveChanges();
+                foreach (var foundGeo in item.Value)
+                {
+                    var newfg = new FoundGeocache()
+                    {
+                        Person = item.Key,
+                        Geocache = geocache.Where(s => s.Key == foundGeo).Select(fg => fg.Value).First()
+                    };
+                    db.Add(newfg);
+                    db.SaveChanges();
+                }
             }
-            foreach (var g in geocache)
-            {
-                db.Add(g);
-                db.SaveChanges();
-            }
-            foreach (var fg in found)
-            {
-                db.Add(fg);
-                db.SaveChanges();
-            }
-                person.Clear();
+        }
+
+        public void WriteToFile()
+        {
+
         }
     }
-
 }
 

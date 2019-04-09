@@ -27,6 +27,7 @@ namespace Geocaching
 
     public partial class MainWindow : Window
     {
+
         private AppDbContext db = new AppDbContext();
 
 
@@ -64,8 +65,64 @@ namespace Geocaching
 
             using (var db = new AppDbContext())
             {
+
+
                 // Load data from database and populate map here.
+                foreach (var personobj in db.Person)
+                {
+                    Person person = new Person
+                    {
+                        ID = personobj.ID,
+                        FirstName = personobj.FirstName,
+                        LastName = personobj.LastName,
+                        Country = personobj.Country,
+                        City = personobj.City,
+                        StreetName = personobj.StreetName,
+                        StreetNumber = personobj.StreetNumber,
+                        Longitude = personobj.Longitude,
+                        Latitude = personobj.Latitude
+                    };
+
+                    foreach (var geo in db.Geocache)
+                    {
+                        Geocache geocache = new Geocache
+                        {
+                            ID = geo.ID,
+                            Latitude = geo.Latitude,
+                            Longitude = geo.Longitude,
+                            Contents = geo.Contents,
+                            Message = geo.Message,
+                            Person = person
+
+                        };
+                        Location location = new Location(longitude: geocache.Longitude, latitude: geocache.Latitude);
+                        
+                        string messageToolTipGeo = TooltipMessageGeo(geocache);
+                        var pin = AddPin(location, tooltip: messageToolTipGeo, Colors.Gray);
+                        pin.MouseDown += (s, a) =>
+                        {
+                            // Handle click on person pin here.
+                            MessageBox.Show("You clicked a person");
+                            UpdateMap();
+
+                            // Prevent click from being triggered on map.
+                            a.Handled = true;
+                        };
+                    }
+
+
+
+                }
+
+
             }
+        }
+
+        private string TooltipMessageGeo(Geocache geo)
+        {
+            string message = geo.Latitude + ", " + geo.Longitude + "\n"  + geo.Message + "\n" + geo.Contents + "\n" + geo.Person.FirstName + " " + geo.Person.LastName;
+
+            return message;
         }
 
         private void CreateMap()
