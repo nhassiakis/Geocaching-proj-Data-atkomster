@@ -65,10 +65,10 @@ namespace Geocaching
 
             using (var db = new AppDbContext())
             {
-
+                //db.ClearDatabase(db);
 
                 // Load data from database and populate map here.
-                foreach (var personobj in db.Person)
+                foreach (var personobj in db.Person.Include(x => x.FoundGeocaches))
                 {
                     Person person = new Person
                     {
@@ -82,8 +82,23 @@ namespace Geocaching
                         Longitude = personobj.Longitude,
                         Latitude = personobj.Latitude
                     };
+                    Location locationPer = new Location(longitude: person.Longitude, latitude: person.Latitude);
 
-                    foreach (var geo in db.Geocache)
+                    string messageTooltipPer = TooltipMessagePer(person);
+                    var pinPer = AddPersonPin(locationPer, tooltip: messageTooltipPer, Colors.Blue, person);
+                    pinPer.MouseDown += (s, a) =>
+                    {
+
+                        SelectedPerson(s, a);
+                        // Handle click on person pin here.
+                        MessageBox.Show("You clicked a person");
+                        UpdateMap();
+
+                        // Prevent click from being triggered on map.
+                        a.Handled = true;
+                    };
+
+                    foreach (var geo in db.Geocache.Include(z => z.Person).Include(fg => fg.FoundGeocaches))
                     {
                         Geocache geocache = new Geocache
                         {
@@ -92,14 +107,15 @@ namespace Geocaching
                             Longitude = geo.Longitude,
                             Contents = geo.Contents,
                             Message = geo.Message,
-                            Person = person
+                            Person = geo.Person
 
                         };
+
                         Location location = new Location(longitude: geocache.Longitude, latitude: geocache.Latitude);
-                        
-                        string messageToolTipGeo = TooltipMessageGeo(geocache);
-                        var pin = AddPin(location, tooltip: messageToolTipGeo, Colors.Gray);
-                        pin.MouseDown += (s, a) =>
+
+                        string messageTooltipGeo = TooltipMessageGeo(geocache);
+                        var pinGeo = AddGeoPin(location, tooltip: messageTooltipGeo, Colors.Gray, geocache);
+                        pinGeo.MouseDown += (s, a) =>
                         {
                             // Handle click on person pin here.
                             MessageBox.Show("You clicked a person");
@@ -118,9 +134,29 @@ namespace Geocaching
             }
         }
 
+        private void SelectedPerson(object s, MouseButtonEventArgs a)
+        {
+            //throw new NotImplementedException(); // select person, ändra opacity
+            Location latestClickPerson = new Location(latestClickLocation.Latitude, latestClickLocation.Longitude);
+
+            //foreach (var item in pin)
+            //{
+
+            //}
+
+        }
+
         private string TooltipMessageGeo(Geocache geo)
         {
-            string message = geo.Latitude + ", " + geo.Longitude + "\n"  + geo.Message + "\n" + geo.Contents + "\n" + geo.Person.FirstName + " " + geo.Person.LastName;
+            string message = geo.Latitude + ", " + geo.Longitude + "\n" + geo.Message + "\n" + geo.Contents + "\n" + geo.Person.FirstName + " " + geo.Person.LastName;
+
+            return message;
+        }
+
+
+        private string TooltipMessagePer(Person person)
+        {
+            string message = person.FirstName + " " + person.LastName + "\n" + person.StreetName + " " + person.StreetNumber;
 
             return message;
         }
@@ -187,11 +223,17 @@ namespace Geocaching
                 Latitude = latitude,
                 Longitude = longitude,
                 Contents = contents,
-                Message = message
+                Message = message,
+
             };
 
+            db.Add(geocache);
+            db.SaveChanges();
+
             // Add geocache to map and database here.
-            var pin = AddPin(latestClickLocation, "Person", Colors.Gray);
+            //string messageGeo = TooltipMessageGeo(geocache);
+
+            var pin = AddGeoPin(latestClickLocation, "player", Colors.Gray, geocache);
 
             pin.MouseDown += (s, a) =>
             {
@@ -233,9 +275,12 @@ namespace Geocaching
                 StreetName = streetName,
                 StreetNumber = (short)streetNumber
             };
+            db.Add(person);
+            db.SaveChanges();
 
+            string message = TooltipMessagePer(person);
             // Add person to map and database here.
-            var pin = AddPin(latestClickLocation, "Person", Colors.Blue);
+            var pin = AddPersonPin(latestClickLocation, message, Colors.Blue, person);
 
             pin.MouseDown += (s, a) =>
             {
@@ -248,11 +293,24 @@ namespace Geocaching
             };
         }
 
-        private Pushpin AddPin(Location location, string tooltip, Color color)
+        private Pin AddGeoPin(Location location, string tooltip, Color color, Geocache geocache)
         {
-            var pin = new Pushpin();
+            var pin = new Pin();
             pin.Cursor = Cursors.Hand;
             pin.Background = new SolidColorBrush(color);
+            pin.Geocache = geocache;
+            ToolTipService.SetToolTip(pin, tooltip);
+            ToolTipService.SetInitialShowDelay(pin, 0);
+            layer.AddChild(pin, new Location(location.Latitude, location.Longitude));
+            return pin;
+        }
+
+        private Pin AddPersonPin(Location location, string tooltip, Color color, Person person)
+        {
+            var pin = new Pin();
+            pin.Cursor = Cursors.Hand;
+            pin.Background = new SolidColorBrush(color);
+            pin.Person = person;
             ToolTipService.SetToolTip(pin, tooltip);
             ToolTipService.SetInitialShowDelay(pin, 0);
             layer.AddChild(pin, new Location(location.Latitude, location.Longitude));
@@ -291,10 +349,33 @@ namespace Geocaching
             }
 
             string path = dialog.FileName;
-
             using (TextWriter tw = new StreamWriter(path))
             {
+                List<string> fileToText = new List<string>();
+                string foundGeo = "Found: ";
                 //foreach (var item in Person) Hämta från databas först
+                foreach (var person in db.Person.Include(p => p.FoundGeocaches))
+                {
+
+                    fileToText.Add(person.FirstName + " | " + person.LastName + " | " + person.Country + " | " + person.City + " | " + person.StreetName + " | " + person.StreetNumber + " | " + person.Latitude + " | " + person.Longitude);
+                    foreach (var geocache in db.Geocache.Where(s => s.Person.ID == person.ID))
+                    {
+                        fileToText.Add(geocache.ID + " | " + geocache.Latitude + " | " + geocache.Longitude + " | " + geocache.Contents + " | " + geocache.Message);
+                        //fileToText.Add("Found: " + person.FoundGeocaches.Select(fg => fg.GeocacheID));
+                    }
+                    foreach (var item in person.FoundGeocaches)
+                    {
+
+                        foundGeo += item.GeocacheID + " , ";
+                    }
+                    string formattedFG = foundGeo.Remove(foundGeo.Length - 3);
+                    fileToText.Add(formattedFG);
+                    fileToText.Add(Environment.NewLine);
+                }
+                foreach (var text in fileToText)
+                {
+                    tw.WriteLine(text);
+                }
             }
 
 

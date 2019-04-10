@@ -154,6 +154,7 @@
       <DependentUpon>20190404095941_modelupdate3.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\AppDbContextModelSnapshot.cs" />
+    <Compile Include="Models\Pin.cs" />
     <Compile Include="WriteToText.cs" />
     <Page Include="GeocacheDialog.xaml">
       <SubType>Designer</SubType>

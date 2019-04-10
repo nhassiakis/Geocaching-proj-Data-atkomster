@@ -67,7 +67,7 @@ namespace Geocaching
             foreach (string line in lines)
             {
                 string[] split = line.Split('|').Select(v => v.Trim()).ToArray();
-
+                
                 if (split[0] != "")
                 {
 
