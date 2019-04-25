@@ -171,10 +171,7 @@ namespace Geocaching
             }
         }
 
-        public void WriteToFile()
-        {
-
-        }
+        
     }
 }
 
