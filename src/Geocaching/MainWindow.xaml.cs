@@ -82,24 +82,24 @@ namespace Geocaching
                     Longitude = personobj.Longitude,
                     Latitude = personobj.Latitude
                 };
-                Location locationPer = new Location(longitude: person.Longitude, latitude: person.Latitude);
+                //Location locationPer = new Location(longitude: person.Longitude, latitude: person.Latitude);
 
-                string messageTooltipPer = TooltipMessagePer(person);
-                var pinPer = AddPersonPin(locationPer, tooltip: messageTooltipPer, Colors.Blue, person);
-                pinPer.MouseDown += (s, a) =>
-                {
+                //string messageTooltipPer = TooltipMessagePer(person);
+                //var pinPer = AddPersonPin(locationPer, tooltip: messageTooltipPer, Colors.Blue, person);
+                //pinPer.MouseDown += (s, a) =>
+                //{
 
-                    SelectedPerson(s, a);
-                    // Handle click on person pin here.
-                    MessageBox.Show("You clicked a person");
-                    currentPerson = person;
-                    UpdateMap();
+                //    SelectedPerson(s, a);
+                //    // Handle click on person pin here.
+                //    MessageBox.Show("You clicked a person");
+                //    currentPerson = person;
+                //    UpdateMap();
 
-                    // Prevent click from being triggered on map.
-                    a.Handled = true;
-                };
+                //    // Prevent click from being triggered on map.
+                //    a.Handled = true;
+                //};
 
-                foreach (var geo in db.Geocache.Include(z => z.Person).Include(fg => fg.FoundGeocaches))
+                foreach (var geo in db.Geocache.Include(g => g.Person).Include(fg => fg.FoundGeocaches))
                 {
                     Geocache geocache = new Geocache
                     {
@@ -112,20 +112,20 @@ namespace Geocaching
 
                     };
 
-                    Location location = new Location(longitude: geocache.Longitude, latitude: geocache.Latitude);
+                    //Location location = new Location(longitude: geocache.Longitude, latitude: geocache.Latitude);
 
-                    string messageTooltipGeo = TooltipMessageGeo(geocache);
-                    var pinGeo = AddGeoPin(location, tooltip: messageTooltipGeo, Colors.Gray, geocache);
-                    pinGeo.MouseDown += (s, a) =>
-                    {
-                        // Handle click on person pin here.
-                        MessageBox.Show("You clicked a person");
+                    //string messageTooltipGeo = TooltipMessageGeo(geocache);
+                    //var pinGeo = AddGeoPin(location, tooltip: messageTooltipGeo, Colors.Gray, geocache);
+                    //pinGeo.MouseDown += (s, a) =>
+                    //{
+                    //    // Handle click on person pin here.
+                    //    MessageBox.Show("You clicked a person");
 
-                        UpdateMap();
+                    //    UpdateMap();
 
-                        // Prevent click from being triggered on map.
-                        a.Handled = true;
-                    };
+                    //    // Prevent click from being triggered on map.
+                    //    a.Handled = true;
+                    //};
                 }
 
 
@@ -206,6 +206,85 @@ namespace Geocaching
         }
 
         #region Color Pins
+
+        private void ColorsPersonPin()
+        {
+            IEnumerable<Pin> PersonList = new List<Pin>();
+
+            //PersonList = db.Person.Include(p => p.FoundGeocaches);
+
+            foreach (var Pin in PersonList)
+            {
+                if (Pin.Person != null)
+                {
+                    Location location = new Location(Pin.Location.Latitude, Pin.Location.Longitude);
+                    string perToolTip = TooltipMessagePer(Pin.Person);
+
+                    if (currentPerson.ID == Pin.Person.ID || currentPerson == null)
+                    {
+                        color = Colors.Blue;
+                    }
+                    else
+                    {
+                        Pin.Opacity = 0.5;
+                    }
+
+                    Pin.MouseDown += (s, a) =>
+                    {
+                        currentPerson = Pin.Person;
+                        UpdateMap();
+                        a.Handled = true;
+                    };
+                }
+
+                if (Pin.Geocache != null)
+                {
+                    Location location = new Location(Pin.Location.Latitude, Pin.Location.Longitude);
+                    string geoToolTip = TooltipMessageGeo(Pin.Geocache);
+
+                    if (currentPerson == null)
+                    {
+                        color = Colors.Gray;
+                    }
+                    // if geocache was placed by player, color should be black
+                    else if (Pin.Person.ID == currentPerson.ID)
+                    {
+                        color = Colors.Black;
+                    }
+                    else
+                    {
+                        color = Colors.Red;
+                    }
+
+                    foreach (var fg in Pin.Geocache.FoundGeocaches)
+                    {
+                        if (fg.PersonID == currentPerson.ID)
+                        {
+                            Pin.Location = location;
+                            Pin.ToolTip = geoToolTip;
+                            color = Colors.Green;
+                        }
+                    }
+                    // On click, change color on Geocache-pins.
+                    Pin.MouseDown += (s, a) =>
+                    {
+                        a.Handled = true;
+                        ChangeColorGeoPins(Pin);
+                    };
+                }
+            }
+        }
+
+        public void ChangeColorGeoPins(Pin Pin)
+        {
+            Geocache currentGeo = new Geocache();
+            List<int> currentFGeoIDs = new List<int>();
+            
+            currentGeo = db.Geocache.Include(geo => geo.Person).First(geoC => geoC.Latitude == Pin.Geocache.Latitude && geoC.Longitude == Pin.Geocache.Longitude);
+            currentFGeoIDs = db.FoundGeocache.Where(fg => fg.PersonID == currentPerson.ID).Select(fg => fg.GeocacheID).ToList();
+
+        }
+
         private void ColorPersonPin()
         {
             IEnumerable<Person> PersonList = new List<Person>();
@@ -269,16 +348,14 @@ namespace Geocaching
                      Geocache currentGeo = new Geocache();
                      List<int> CurrentPersonFoundIDs = new List<int>();
 
-                     currentGeo = db.Geocache.Include(g => g.Person)
-                     .First(g => g.Latitude == location.Latitude && g.Longitude == location.Longitude);
+                     currentGeo = db.Geocache.Include(geo => geo.Person)
+                     .First(geo => geo.Latitude == location.Latitude && geo.Longitude == location.Longitude);
                      // To find out each geocache ID that the currently selected person has found and add all of them to a list.
                      CurrentPersonFoundIDs = db.FoundGeocache.Where(fg => fg.PersonID == CurrentPerID).Select(fg => fg.GeocacheID).ToList();
 
 
                  };
-
             }
-
 
 
         }
@@ -287,7 +364,7 @@ namespace Geocaching
         private void OnMapLeftClick()
         {
             // Handle map click here.
-            CurrentPerID = 0;
+            currentPerson = null;
             UpdateMap();
         }
 
@@ -328,24 +405,21 @@ namespace Geocaching
 
                 // Add geocache to map and database here.
                 string messageGeo = TooltipMessageGeo(geocache);
+                _ = AddGeoPin(latestClickLocation, messageGeo, Colors.Gray, geocache);
 
-                var pin = AddGeoPin(latestClickLocation, "player", Colors.Gray, geocache);
+                UpdateMap();
 
-                Location location = new Location(geocache.Latitude, geocache.Longitude);
-
-                AddGeoPin(location, messageGeo, color: Colors.Gray, geocache);
-
-                pin.MouseDown += (s, a) =>
-                {
-                    // Handle click on geocache pin here.
+                //pin.MouseDown += (s, a) =>
+                //{
+                //    // Handle click on geocache pin here.
 
 
-                    MessageBox.Show("You clicked a geocache");
-                    UpdateMap();
+                //    MessageBox.Show("You clicked a geocache");
+                //    UpdateMap();
 
-                    // Prevent click from being triggered on map.
-                    a.Handled = true;
-                };
+                //    // Prevent click from being triggered on map.
+                //    a.Handled = true;
+                //};
             }
             else
             {
@@ -387,27 +461,28 @@ namespace Geocaching
 
             string message = TooltipMessagePer(person);
             // Add person to map and database here.
-            var pin = AddPersonPin(latestClickLocation, message, Colors.Blue, person);
+            //var pin = AddPersonPin(latestClickLocation, message, Colors.Blue, person);
             Location location = new Location(person.Latitude, person.Longitude);
+            _ = AddPersonPin(location, message, color: Colors.Blue, person);
 
-            Pin pinper = AddPersonPin(location, message, color: Colors.Blue, person);
+            currentPerson = person;
 
-            pin.MouseDown += (s, a) =>
-            {
-                // Handle click on person pin here.
-                currentPerson = person;
-                MessageBox.Show("You clicked a person");
-                var locLat = latestClickLocation.Latitude;
-                var locLong = latestClickLocation.Longitude;
-                if (pinper.Location.Latitude == locLat && pinper.Location.Longitude == locLong)
-                {
+            //pin.MouseDown += (s, a) =>
+            //{
+            //    // Handle click on person pin here.
+            //    currentPerson = person;
+            //    //MessageBox.Show("You clicked a person");
+            //    //var locLat = latestClickLocation.Latitude;
+            //    //var locLong = latestClickLocation.Longitude;
+            //    //if (pinper.Location.Latitude == locLat && pinper.Location.Longitude == locLong)
+            //    //{
 
-                }
-                UpdateMap();
+            //    //}
+            //    UpdateMap();
 
-                // Prevent click from being triggered on map.
-                a.Handled = true;
-            };
+            //    // Prevent click from being triggered on map.
+            //    a.Handled = true;
+            //};
         }
         #region pin
         private Pin AddGeoPin(Location location, string tooltip, Color color, Geocache geocache)
