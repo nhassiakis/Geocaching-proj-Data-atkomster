@@ -51,8 +51,11 @@ namespace Geocaching
 
             }
             db.Person.RemoveRange(db.Person.ToArray());
-
-            db.SaveChanges();
+            try
+            {
+                db.SaveChanges();
+            }
+            catch { }
         }
 
         public void ReadFromFile(string path, AppDbContext db)
@@ -67,7 +70,7 @@ namespace Geocaching
             foreach (string line in lines)
             {
                 string[] split = line.Split('|').Select(v => v.Trim()).ToArray();
-                
+
                 if (split[0] != "")
                 {
 
@@ -166,12 +169,18 @@ namespace Geocaching
                         Geocache = geocache.Where(s => s.Key == foundGeo).Select(fg => fg.Value).First()
                     };
                     db.Add(newfg);
+                    try
+                    {
                     db.SaveChanges();
+                    }
+                    catch
+                    {
+                    }
                 }
             }
         }
 
-        
+
     }
 }
 

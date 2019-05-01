@@ -42,6 +42,8 @@ namespace Geocaching
         private Location latestClickLocation;
         int CurrentPerID;
         Color color = new Color();
+        private List<Pin> pin = new List<Pin>();
+        double opacity = 1;
 
         private Location gothenburg = new Location(57.719021, 11.991202);
 
@@ -62,7 +64,6 @@ namespace Geocaching
                 MessageBox.Show("Please set the applicationId variable before running this program.");
                 Environment.Exit(0);
             }
-
             CreateMap();
 
 
@@ -82,10 +83,10 @@ namespace Geocaching
                     Longitude = personobj.Longitude,
                     Latitude = personobj.Latitude
                 };
-                //Location locationPer = new Location(longitude: person.Longitude, latitude: person.Latitude);
+                Location locationPer = new Location(longitude: person.Longitude, latitude: person.Latitude);
 
-                //string messageTooltipPer = TooltipMessagePer(person);
-                //var pinPer = AddPersonPin(locationPer, tooltip: messageTooltipPer, Colors.Blue, person);
+                string messageTooltipPer = TooltipMessagePer(person);
+                pin.Add(AddPersonPin(locationPer, tooltip: messageTooltipPer, Colors.Blue, 1, person));
                 //pinPer.MouseDown += (s, a) =>
                 //{
 
@@ -112,10 +113,10 @@ namespace Geocaching
 
                     };
 
-                    //Location location = new Location(longitude: geocache.Longitude, latitude: geocache.Latitude);
+                    Location location = new Location(longitude: geocache.Longitude, latitude: geocache.Latitude);
 
-                    //string messageTooltipGeo = TooltipMessageGeo(geocache);
-                    //var pinGeo = AddGeoPin(location, tooltip: messageTooltipGeo, Colors.Gray, geocache);
+                    string messageTooltipGeo = TooltipMessageGeo(geocache);
+                    pin.Add(AddGeoPin(location, tooltip: messageTooltipGeo, Colors.Gray, 1, geocache));
                     //pinGeo.MouseDown += (s, a) =>
                     //{
                     //    // Handle click on person pin here.
@@ -144,6 +145,7 @@ namespace Geocaching
 
         private void LeftClickOnMap()
         {
+            currentPerson = null;
             CurrentPerID = 0;
             UpdateMap();
         }
@@ -201,26 +203,65 @@ namespace Geocaching
             // It is recommended (but optional) to use this method for setting the color and opacity of each pin after every user interaction that might change something.
             // This method should then be called once after every significant action, such as clicking on a pin, clicking on the map, or clicking a context menu option.
 
+            //pasasdasd();
+
+            //ColorsPersonGeoPin();
+
             ColorGeoPin();
             ColorPersonPin();
         }
 
         #region Color Pins
-
-        private void ColorsPersonPin()
+        private void pasasdasd()
         {
             IEnumerable<Pin> PersonList = new List<Pin>();
-
+            Person currentPer = new Person();
             //PersonList = db.Person.Include(p => p.FoundGeocaches);
 
-            foreach (var Pin in PersonList)
+            foreach (Pin pin in pin)
+            {
+
+                if (pin.Person != null)
+                {
+                    currentPer = pin.Person;
+                    Location location = new Location(pin.Person.Latitude, pin.Person.Longitude);
+                    string perToolTip = TooltipMessagePer(pin.Person);
+
+                    if (CurrentPerID == pin.Person.ID || CurrentPerID == 0)
+                    {
+                        color = Colors.Red;
+                    }
+                    else
+                    {
+                        pin.Opacity = 0.5;
+                    }
+                    //var pin = AddPersonPin(location, perToolTip, color, currentPer);
+                    pin.Background = new SolidColorBrush(color);
+                    pin.MouseDown += (s, a) =>
+                    {
+                        currentPerson = pin.Person;
+                        UpdateMap();
+                        a.Handled = true;
+                    };
+                }
+            }
+        }
+
+        private void ColorsPersonGeoPin()
+        {
+            IEnumerable<Pin> PersonList = new List<Pin>();
+            Person currentPer = new Person();
+            //PersonList = db.Person.Include(p => p.FoundGeocaches);
+
+            foreach (var Pin in pin)
             {
                 if (Pin.Person != null)
                 {
-                    Location location = new Location(Pin.Location.Latitude, Pin.Location.Longitude);
+                    currentPer = Pin.Person;
+                    Location location = new Location(Pin.Person.Latitude, Pin.Person.Longitude);
                     string perToolTip = TooltipMessagePer(Pin.Person);
 
-                    if (currentPerson.ID == Pin.Person.ID || currentPerson == null)
+                    if (currentPerson == null || currentPerson.ID == Pin.Person.ID)
                     {
                         color = Colors.Blue;
                     }
@@ -229,17 +270,19 @@ namespace Geocaching
                         Pin.Opacity = 0.5;
                     }
 
+                    var pin = AddPersonPin(location, perToolTip, color, 1, currentPer);
                     Pin.MouseDown += (s, a) =>
                     {
                         currentPerson = Pin.Person;
                         UpdateMap();
                         a.Handled = true;
                     };
+
                 }
 
                 if (Pin.Geocache != null)
                 {
-                    Location location = new Location(Pin.Location.Latitude, Pin.Location.Longitude);
+                    Location location = new Location(Pin.Geocache.Latitude, Pin.Geocache.Longitude);
                     string geoToolTip = TooltipMessageGeo(Pin.Geocache);
 
                     if (currentPerson == null)
@@ -255,34 +298,56 @@ namespace Geocaching
                     {
                         color = Colors.Red;
                     }
-
+                    var pinGeo = AddGeoPin(location, geoToolTip, color, 1, Pin.Geocache);
                     foreach (var fg in Pin.Geocache.FoundGeocaches)
                     {
                         if (fg.PersonID == currentPerson.ID)
                         {
-                            Pin.Location = location;
-                            Pin.ToolTip = geoToolTip;
-                            color = Colors.Green;
+                            pinGeo = AddGeoPin(location, geoToolTip, Colors.Green, 1, Pin.Geocache);
                         }
                     }
                     // On click, change color on Geocache-pins.
                     Pin.MouseDown += (s, a) =>
                     {
                         a.Handled = true;
-                        ChangeColorGeoPins(Pin);
+                        ChangeColorGeoPins(Pin, geoToolTip);
                     };
                 }
             }
         }
 
-        public void ChangeColorGeoPins(Pin Pin)
+        private void ChangeColorGeoPins(Pin pin, string geoToolTip)
         {
             Geocache currentGeo = new Geocache();
             List<int> currentFGeoIDs = new List<int>();
-            
-            currentGeo = db.Geocache.Include(geo => geo.Person).First(geoC => geoC.Latitude == Pin.Geocache.Latitude && geoC.Longitude == Pin.Geocache.Longitude);
+
+            currentGeo = pin.Geocache;
+            //currentGeo = db.Geocache.Include(geo => geo.Person).First(geoC => geoC.Latitude == pin.Geocache.Latitude && geoC.Longitude == pin.Geocache.Longitude);
             currentFGeoIDs = db.FoundGeocache.Where(fg => fg.PersonID == currentPerson.ID).Select(fg => fg.GeocacheID).ToList();
 
+
+            if (currentPerson.ID != currentGeo.Person.ID && currentPerson != null)
+            {
+                if (currentFGeoIDs.Contains(currentGeo.ID))
+                {
+                    pin = AddGeoPin(pin.Location, geoToolTip, Colors.Red, 1, pin.Geocache);
+                    var fgToDelete = db.FoundGeocache.First(fg => (fg.PersonID == currentPerson.ID) && (fg.GeocacheID == currentGeo.ID));
+                    db.Remove(db.FoundGeocache.Single(fg => fg.GeocacheID == fgToDelete.GeocacheID && fg.PersonID == currentPerson.ID));
+                }
+
+                else
+                {
+                    pin = AddGeoPin(pin.Location, geoToolTip, Colors.Green, 1, pin.Geocache);
+                    var foundFG = new FoundGeocache
+                    {
+                        GeocacheID = currentGeo.ID,
+                        PersonID = currentPerson.ID
+                    };
+                    db.Add(foundFG);
+                }
+                db.SaveChanges();
+                UpdateMap();
+            }
         }
 
         private void ColorPersonPin()
@@ -290,7 +355,6 @@ namespace Geocaching
             IEnumerable<Person> PersonList = new List<Person>();
 
             PersonList = db.Person.Include(p => p.FoundGeocaches);
-
             foreach (var p in PersonList)
             {
                 Location location = new Location(p.Latitude, p.Longitude);
@@ -299,10 +363,11 @@ namespace Geocaching
                 if (CurrentPerID == p.ID || CurrentPerID == 0)
                 {
                     color = Colors.Blue;
+                    opacity = 1;
                 }
-                else color = Color.FromRgb(0x47, 0x9D, 0xEE);
+                else opacity = Opacity = 0.5;
 
-                var pinPerson = AddPersonPin(location, perToolTip, color, p);
+                var pinPerson = AddPersonPin(location, perToolTip, color, Opacity, p);
 
                 pinPerson.MouseDown += (s, a) =>
                  {
@@ -332,13 +397,13 @@ namespace Geocaching
                 }
                 else color = Colors.Red;
 
-                var pinGeo = AddGeoPin(location, geoToolTip, color, g);
+                var pinGeo = AddGeoPin(location, geoToolTip, color, 1, g);
 
                 foreach (var fg in g.FoundGeocaches)
                 {
                     if (fg.PersonID == CurrentPerID)
                     {
-                        pinGeo = AddGeoPin(location, geoToolTip, Colors.Green, g);
+                        pinGeo = AddGeoPin(location, geoToolTip, Colors.Green, 1, g);
                     }
                 }
 
@@ -359,11 +424,33 @@ namespace Geocaching
 
 
         }
+
+        private void UpdatePin(Pushpin pin, Color color, double opacity)
+        {
+            pin.Background = new SolidColorBrush(color);
+            pin.Opacity = opacity;
+        }
+
+        //private Pushpin AddPin(GeoCoordinate loc, string tooltip, Color color, double opacity, object obj)
+        //{
+        //    var location = new Location { Latitude = loc.Latitude, Longitude = loc.Longitude };
+        //    var pin = new Pushpin();
+        //    pin.Cursor = Cursors.Hand;
+        //    pin.Background = new SolidColorBrush(color);
+        //    pin.Opacity = opacity;
+        //    pin.Location = location;
+        //    pin.Tag = obj;
+        //    ToolTipService.SetToolTip(pin, tooltip);
+        //    ToolTipService.SetInitialShowDelay(pin, 0);
+        //    layer.AddChild(pin, location);
+        //    return pin;
+        //}
         #endregion
 
         private void OnMapLeftClick()
         {
             // Handle map click here.
+            CurrentPerID = 0;
             currentPerson = null;
             UpdateMap();
         }
@@ -405,7 +492,7 @@ namespace Geocaching
 
                 // Add geocache to map and database here.
                 string messageGeo = TooltipMessageGeo(geocache);
-                _ = AddGeoPin(latestClickLocation, messageGeo, Colors.Gray, geocache);
+                pin.Add(AddGeoPin(latestClickLocation, messageGeo, Colors.Gray, 1, geocache));
 
                 UpdateMap();
 
@@ -463,10 +550,10 @@ namespace Geocaching
             // Add person to map and database here.
             //var pin = AddPersonPin(latestClickLocation, message, Colors.Blue, person);
             Location location = new Location(person.Latitude, person.Longitude);
-            _ = AddPersonPin(location, message, color: Colors.Blue, person);
-
+            pin.Add(AddPersonPin(location, message, color: Colors.Blue, 1, person));
+            CurrentPerID = person.ID;
             currentPerson = person;
-
+            UpdateMap();
             //pin.MouseDown += (s, a) =>
             //{
             //    // Handle click on person pin here.
@@ -485,24 +572,28 @@ namespace Geocaching
             //};
         }
         #region pin
-        private Pin AddGeoPin(Location location, string tooltip, Color color, Geocache geocache)
+        private Pin AddGeoPin(Location location, string tooltip, Color color, double opacity, Geocache geocache)
         {
             var pin = new Pin();
             pin.Cursor = Cursors.Hand;
             pin.Background = new SolidColorBrush(color);
             pin.Geocache = geocache;
+            pin.Opacity = opacity;
+            pin.Tag = geocache;
             ToolTipService.SetToolTip(pin, tooltip);
             ToolTipService.SetInitialShowDelay(pin, 0);
             layer.AddChild(pin, new Location(location.Latitude, location.Longitude));
             return pin;
         }
 
-        private Pin AddPersonPin(Location location, string tooltip, Color color, Person person)
+        private Pin AddPersonPin(Location location, string tooltip, Color color, double opacity, Person person)
         {
             var pin = new Pin();
             pin.Cursor = Cursors.Hand;
             pin.Background = new SolidColorBrush(color);
             pin.Person = person;
+            pin.Opacity = opacity;
+            pin.Tag = person;
             ToolTipService.SetToolTip(pin, tooltip);
             ToolTipService.SetInitialShowDelay(pin, 0);
             layer.AddChild(pin, new Location(location.Latitude, location.Longitude));
