@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Geocaching.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20190319105059_AddedModels")]
-    partial class AddedModels
+    [Migration("20190404095535_updatemodels2")]
+    partial class updatemodels2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -40,13 +40,15 @@ namespace Geocaching.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Contents");
+                    b.Property<string>("Contents")
+                        .HasMaxLength(255);
 
-                    b.Property<float>("Latitude");
+                    b.Property<double>("Latitude");
 
-                    b.Property<float>("Longitude");
+                    b.Property<double>("Longitude");
 
-                    b.Property<string>("Message");
+                    b.Property<string>("Message")
+                        .HasMaxLength(255);
 
                     b.Property<int?>("PersonID");
 
@@ -63,21 +65,27 @@ namespace Geocaching.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("City");
+                    b.Property<string>("City")
+                        .HasMaxLength(50);
 
-                    b.Property<string>("Country");
+                    b.Property<string>("Country")
+                        .HasMaxLength(50);
 
-                    b.Property<string>("FirstName");
+                    b.Property<string>("FirstName")
+                        .HasMaxLength(50);
 
-                    b.Property<string>("LastName");
+                    b.Property<string>("LastName")
+                        .HasMaxLength(50);
 
-                    b.Property<float>("Latitude");
+                    b.Property<double>("Latitude");
 
-                    b.Property<float>("Longitude");
+                    b.Property<double>("Longitude");
 
-                    b.Property<string>("StreetName");
+                    b.Property<string>("StreetName")
+                        .HasMaxLength(50);
 
-                    b.Property<short>("StreetNumber");
+                    b.Property<short>("StreetNumber")
+                        .HasMaxLength(50);
 
                     b.HasKey("ID");
 

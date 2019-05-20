@@ -106,6 +106,7 @@
     <Reference Include="System.Data.SqlClient, Version=4.5.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Data.SqlClient.4.6.0\lib\net461\System.Data.SqlClient.dll</HintPath>
     </Reference>
+    <Reference Include="System.Device" />
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.5.0\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
     </Reference>
@@ -140,6 +141,21 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Migrations\20190404093106_UpdateModels.cs" />
+    <Compile Include="Migrations\20190404093106_UpdateModels.designer.cs">
+      <DependentUpon>20190404093106_UpdateModels.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\20190404095535_updatemodels2.cs" />
+    <Compile Include="Migrations\20190404095535_updatemodels2.designer.cs">
+      <DependentUpon>20190404095535_updatemodels2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\20190404095941_modelupdate3.cs" />
+    <Compile Include="Migrations\20190404095941_modelupdate3.designer.cs">
+      <DependentUpon>20190404095941_modelupdate3.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\AppDbContextModelSnapshot.cs" />
+    <Compile Include="Models\Pin.cs" />
+    <Compile Include="WriteToText.cs" />
     <Page Include="GeocacheDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -166,11 +182,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Migrations\20190319105059_AddedModels.cs" />
-    <Compile Include="Migrations\20190319105059_AddedModels.designer.cs">
-      <DependentUpon>20190319105059_AddedModels.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\AppDbContextModelSnapshot.cs" />
     <Compile Include="Models\FoundGeocache.cs" />
     <Compile Include="Models\Geocache.cs" />
     <Compile Include="Models\Person.cs" />
@@ -204,7 +215,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Geocaches.txt" />
+    <Resource Include="Geocaches.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

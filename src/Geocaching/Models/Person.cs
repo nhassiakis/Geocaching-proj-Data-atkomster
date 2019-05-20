@@ -15,8 +15,8 @@ namespace Geocaching.Models
         public string FirstName { get; set; }
         [MaxLength(50)]
         public string LastName { get; set; }
-        public float Latitude { get; set; }
-        public float Longitude { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
         [MaxLength(50)]
         public string Country { get; set; }
         [MaxLength(50)]
@@ -25,7 +25,11 @@ namespace Geocaching.Models
         public string StreetName { get; set; }
         [MaxLength(50)]
         public Int16 StreetNumber { get; set; }
-        public IList<FoundGeocache> FoundGeocaches { get; set; }
+        public IList<FoundGeocache> FoundGeocaches { get; set; } = new List<FoundGeocache>();
 
+        public static implicit operator Dictionary<object, object>(Person v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
